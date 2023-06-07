@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const connectionString = 'mongodb://127.0.0.1:27017/chatDB';
+    const connectionString = process.env.MONGODB_URI;
 
     await mongoose.connect(connectionString, {
       useNewUrlParser: true,
