@@ -12,10 +12,10 @@ router.post('/login', authController.login);
 // Logout the current user
 router.post('/logout', authController.logout);
 
-// Example protected route
-router.get('/protected', passport.authenticate('jwt', { session: false }), (req, res) => {
-  // Access the authenticated user through req.user
-  res.json({ message: 'Protected route accessed successfully', user: req.user });
-});
+// // Example protected route
+// router.get('/protected', passport.authenticate('jwt', { session: false }), (req, res) => {
+//   // Access the authenticated user through req.user
+//   res.json({ message: 'Protected route accessed successfully', user: req.user });
+// });
 
 module.exports = router;

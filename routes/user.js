@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/User');
-const { ensureAuthenticated } = require('../middleware/auth');
-
+const passport = require('passport');
+const ensureAuthenticated  = passport.authenticate('jwt', { session: false })
 // User routes
 router.get('/users', ensureAuthenticated, userController.getAllUsers);
 router.get('/users/:id', ensureAuthenticated, userController.getUserById);

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Chat Application</title>
+  <style>
+    /* CSS styles */
+    #message-container {
+      height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chat Application</h1>
+
+  <div id="message-container">
+    <!-- Container to display chat messages -->
+  </div>
+
+  <input type="text" id="message-input" placeholder="Type your message">
+  <button id="send-button">Send</button>
+
+  <script>
+    // JavaScript code
+
+    const messageContainer = document.getElementById('message-container');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+
+    // Function to add a new message to the UI
+    function addMessage(message) {
+      const messageElement = document.createElement('div');
+      messageElement.textContent = message;
+      messageContainer.appendChild(messageElement);
+    }
+
+    // Event listener for the send button
+    sendButton.addEventListener('click', () => {
+      const message = messageInput.value;
+      if (message) {
+        // Send the message to the backend API endpoint
+        fetch('/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            addMessage(data.message);
+            messageInput.value = '';
+          }
+        })
+        .catch(error => console.log('Error sending message:', error));
+      }
+    });
+
+    // Function to retrieve and display existing messages
+    function getMessages() {
+      // Fetch messages from the backend API endpoint
+      fetch('/api/messages')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            data.messages.forEach(message => addMessage(message));
+          }
+        })
+        .catch(error => console.log('Error retrieving messages:', error));
+    }
+
+    // Call the getMessages function on page load
+    getMessages();
+  </script>
+</body>
+</html>

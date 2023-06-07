@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const passport = require('./config/passport');
 const routes = require('./routes');
+const path = require('path');
 
 // Create the Express app
 const app = express();
@@ -18,7 +19,9 @@ app.use(cors());
 app.use(passport.initialize());
 app.use('/api', routes);
 //app.use(require("./routes/record"));
-
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, './public', 'index.html'));
+  });
 // Get MongoDB driver connection
 const connectDB = require("./config/conn");
  
