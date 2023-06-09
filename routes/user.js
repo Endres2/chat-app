@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/User');
 const passport = require('passport');
-const ensureAuthenticated  = passport.authenticate('jwt', { session: false })
+const ensureAuthenticated  = passport.authenticate('local')
 // User routes
 router.get('/users', ensureAuthenticated, userController.getAllUsers);
 router.get('/users/:id', ensureAuthenticated, userController.getUserById);

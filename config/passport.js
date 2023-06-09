@@ -1,33 +1,34 @@
 const passport = require('passport');
-const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
+const LocalStrategy = require('passport-local').Strategy;
+
+// Import your User model or user authentication logic
 const User = require('../models/User');
-require("dotenv").config({ path: "./config.env" });
 
-// Configure Passport JWT strategy
-const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET,
-};
-
-// JWT strategy
-const jwtStrategy = new JwtStrategy(jwtOptions, async (payload, done) => {
-  try {
-    // Find the user by the provided user ID in the JWT payload
-    const user = await User.findById(payload.userId);
-
-    // If user not found
-    if (!user) {
-      return done(null, false);
-    }
-
-    // User found, attach the user object to the request
-    done(null, user);
-  } catch (error) {
-    done(error, false);
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    User.findOne({ username: username }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) { return done(null, false); }
+      if (!user.verifyPassword(password)) { return done(null, false); }
+      return done(null, user);
+    });
   }
+));
+
+// Serialize the user object to store in the session
+passport.serializeUser((user, done) => {
+  done(null, user.id);
 });
 
-// Initialize Passport and use the JWT strategy
-passport.use(jwtStrategy);
+// Deserialize the user object from the stored session
+passport.deserializeUser((id, done) => {
+    User.findById(id)
+    .then(user => {
+      done(null, user)
+    })
+    .catch((err) => done('pass'));
+});
+
+
 
 module.exports = passport;

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const messageController = require('../controllers/Message');
 const passport = require('passport');
-const ensureAuthenticated  = passport.authenticate('jwt', { session: false })
+const ensureAuthenticated  = passport.authenticate('local')
 
 // Message routes
 router.get('/messages', ensureAuthenticated, messageController.getAllMessages);

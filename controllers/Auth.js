@@ -1,5 +1,4 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // Register a new user
@@ -26,10 +25,16 @@ const register = async (req, res) => {
 
     // Save the user to the database
     await newUser.save();
-
-    // Return a success response
-    res.status(201).json({ message: 'User registered successfully' });
-  } catch (error) {
+    //Creates session for the user
+    await req.logIn(newUser, (err) => {
+        if (err) {
+          console.error('Error logging in user:', err);
+          return res.status(500).json({ error: 'Login failed. Please try again later.' });
+        }
+  
+        // Redirect or send a success response
+        res.status(200).json({ message: 'Registration and login successful' });
+      })} catch (error) {
     // Handle any errors
     res.status(500).json({ message: 'Error registering user', error: error.message });
   }
@@ -37,6 +42,8 @@ const register = async (req, res) => {
 
 // Login an existing user
 const login = async (req, res) => {
+  console.log(req.body)
+  //if(req.body.id === undefined) {return}
   const { username, password } = req.body;
 
   try {
@@ -46,25 +53,38 @@ const login = async (req, res) => {
     // If user not found or password is incorrect
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: 'Invalid username or password' });
+    }else{
+        await req.login(user, (err) => {
+            if (err) {
+              console.error('Error logging in user:', err);
+              return res.status(500).json({ error: 'Login failed. Please try again later.' });
+            }});
+            return res.json({ message: 'Login successful' });
     }
 
-    // Generate a JWT token with the user's ID as the payload
-    const token = jwt.sign({ sub: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
     // Return the token in the response
-    res.json({ message: 'Login successful', token });
+    
+    //return res.json({ message: 'Login successful' });
   } catch (error) {
     // Handle any errors
-    res.status(500).json({ message: 'Error logging in', error: error.message });
+    //return res.status(500).json({ message: 'Error logging in', error: error.message });
   }
 };
 
 // Logout the current user
 const logout = async (req, res) => {
   // Perform any logout-related tasks (e.g., clearing session data)
-
+  req.logout((err) => {
+    if (err) {
+      console.log(err)
+    } else {
+      req.session.destroy();
+      //res.json({ message: 'Logout successful' });
+      res.redirect("/")
+    }
+  });
   // Return a success response
-  res.json({ message: 'Logout successful' });
+  
 };
 
 module.exports = {

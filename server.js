@@ -1,4 +1,5 @@
 const express = require('express');
+const session = require('express-session');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -15,8 +16,19 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(
+    session({
+      secret: process.env.SECRET,
+      resave: false,
+      saveUninitialized: false,
+    })
+  );
+app.use(passport, passport.initialize())
+app.use(passport.session())
+  
 
-app.use(passport.initialize());
+
+
 app.use('/api', routes);
 //app.use(require("./routes/record"));
 app.get('*', (req, res) => {
